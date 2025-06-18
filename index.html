@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DisChat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">DisChat</div>
+                <button class="new-chat-btn">New Chat</button>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search your threads...">
+            </div>
+            <div class="sidebar-section">
+                <div class="section-header">Today</div>
+                <div class="chat-list" id="chat-list">
+                    <!-- Chat items will be added dynamically -->
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="settings-btn">⚙️ Settings</button>
+                <button class="login-btn" id="login-btn">🔑 Login</button>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="theme-toggle-container">
+                <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle Sidebar">☰</button>
+                <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Dark Mode">🌙</button>
+            </div>
+            <div class="chat-container">
+                <div class="welcome-content" id="welcome-content">
+                    <div class="welcome-header">
+                        <h1>How can I help?</h1>
+                    </div>
+                    <div class="suggestion-tabs">
+                        <button class="suggestion-tab active" data-tab="explore"><span class="icon">🔍</span> Explore</button>
+                        <button class="suggestion-tab" data-tab="create"><span class="icon">✏️</span> Create</button>
+                        <button class="suggestion-tab" data-tab="code"><span class="icon">💻</span> Code</button>
+                        <button class="suggestion-tab" data-tab="learn"><span class="icon">📚</span> Learn</button>
+                    </div>
+                    <div class="example-questions" id="example-questions">
+                        <!-- Dynamic content based on selected tab -->
+                    </div>
+                </div>
+                <div class="messages" id="messages">
+                    <!-- Messages will be added here dynamically -->
+                </div>
+                <div class="message-input-container">
+                    <div class="message-input-wrapper">
+                        <div id="file-preview"></div>
+                        <textarea id="message-input" placeholder="Type your message here..."></textarea>
+                        <div class="input-buttons">
+                            <div class="left-buttons">
+                                <div class="model-selector">
+                                    <select id="model-select" class="model-select">
+                                        <option value="deepseek-r1-distill-llama-70b">DeepSeek R1 70B</option>
+                                        <option value="llama3-70b-8192">Llama 3 70B</option>
+                                        <option value="llama3-8b-8192">Llama 3 8B</option>
+                                        <option value="gemma2-9b-it">Gemma 2 9B</option>
+                                        <option value="meta-llama/llama-4-scout-17b-16e-instruct" selected>Llama 4 Scout (Vision)</option>
+                                    </select>
+                                </div>
+                                <button id="web-search-btn" class="web-search-btn" title="Search the web">🔍</button>
+                                <button id="file-upload-btn" class="file-upload-btn" title="Upload files (images, PDFs)">📎</button>
+                                <input type="file" id="file-input" accept="image/*,.pdf" multiple style="display: none;">
+                            </div>
+                            <div class="right-buttons">
+                                <button class="send-btn" id="send-button">→</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="code-preview-panel" id="code-preview-panel">
+                <div class="preview-header">
+                    <div class="preview-title">
+                        <span class="preview-icon">🔴</span>
+                        <span class="preview-text">Live Preview</span>
+                    </div>
+                    <button class="close-preview-btn" id="close-preview-btn">✕</button>
+                </div>
+                <div class="preview-content">
+                    <iframe id="preview-iframe" sandbox="allow-scripts allow-forms allow-popups"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Unified Setup Modal -->
+    <div class="modal" id="setup-modal">
+        <div class="modal-content setup-modal-content">
+            <span class="close-modal" id="close-setup-modal">&times;</span>
+            
+            <!-- Step 1: Authentication -->
+            <div class="setup-step" id="auth-step">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h2>Welcome to DisChat</h2>
+                        <p>Sign in to sync your conversations across devices</p>
+                    </div>
+                </div>
+                
+                <div class="auth-buttons">
+                    <button class="auth-btn google-btn" id="google-login-btn">
+                        <span class="auth-icon">🔵</span>
+                        Continue with Google
+                    </button>
+                </div>
+                
+                <div class="auth-divider">
+                    <span>or</span>
+                </div>
+                
+                <button class="auth-btn guest-btn" id="guest-login-btn">
+                    <span class="auth-icon">👤</span>
+                    Continue as Guest
+                </button>
+            </div>
+
+            <!-- Step 2: API Configuration -->
+            <div class="setup-step" id="api-step" style="display: none;">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h2>Choose Your AI Provider</h2>
+                        <p>Select and configure your preferred AI service</p>
+                    </div>
+                </div>
+                
+                <div class="api-provider-selection">
+                    <label class="provider-card">
+                        <input type="radio" name="api-provider" value="groq" checked>
+                        <div class="provider-content">
+                            <div class="provider-header">
+                                <span class="provider-name">Groq</span>
+                                <span class="provider-badge">Free</span>
+                            </div>
+                            <p class="provider-description">Ultra-fast inference with free tier</p>
+                            <small>Get your API key from <a href="https://console.groq.com/keys" target="_blank">Groq Console</a></small>
+                        </div>
+                    </label>
+                    <label class="provider-card">
+                        <input type="radio" name="api-provider" value="openrouter">
+                        <div class="provider-content">
+                            <div class="provider-header">
+                                <span class="provider-name">OpenRouter</span>
+                                <span class="provider-badge">Pay-per-use</span>
+                            </div>
+                            <p class="provider-description">Access to GPT-4, Claude, and more models</p>
+                            <small>Get your API key from <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a></small>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="input-group api-input-group">
+                    <input type="password" id="api-key-input" placeholder="Enter your API key" required>
+                    <button id="save-api-key" class="primary-btn">
+                        <span>Complete Setup</span>
+                        <span class="btn-icon">✨</span>
+                    </button>
+                </div>
+                
+                <div class="setup-footer">
+                    <div class="security-note">
+                        <span class="security-icon">🔒</span>
+                        Your API key is stored locally and never shared
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Step -->
+            <div class="setup-step" id="success-step" style="display: none;">
+                <div class="success-content">
+                    <div class="success-icon">🎉</div>
+                    <h2>You're All Set!</h2>
+                    <p>DisChat is ready to use with your preferred AI provider</p>
+                    <button class="primary-btn" id="start-chatting">
+                        Start Chatting
+                        <span class="btn-icon">💬</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Settings</h2>
+            <div class="settings-section">
+                <h3>Color Theme</h3>
+                <div class="color-schemes">
+                    <button class="color-scheme-btn" data-theme="default">
+                        <div class="color-preview default-theme"></div>
+                        <span>Default Purple</span>
+                    </button>
+                    <button class="color-scheme-btn" data-theme="blue">
+                        <div class="color-preview blue-theme"></div>
+                        <span>Ocean Blue</span>
+                    </button>
+                    <button class="color-scheme-btn" data-theme="green">
+                        <div class="color-preview green-theme"></div>
+                        <span>Forest Green</span>
+                    </button>
+                    <button class="color-scheme-btn" data-theme="sunset">
+                        <div class="color-preview sunset-theme"></div>
+                        <span>Sunset</span>
+                    </button>
+                    <button class="color-scheme-btn" data-theme="mint">
+                        <div class="color-preview mint-theme"></div>
+                        <span>Fresh Mint</span>
+                    </button>
+                    <button class="color-scheme-btn" data-theme="royal">
+                        <div class="color-preview royal-theme"></div>
+                        <span>Royal Purple</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Firebase Authentication -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, onSnapshot, enableNetwork, disableNetwork } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase configuration - UPDATE THESE VALUES WITH YOUR FIREBASE CONFIG
+        const firebaseConfig = {
+    apiKey: "AIzaSyDkrB4xUWoc6HET2jAiD_bzJzpf5kiIbHI",
+    authDomain: "dischat-auth.firebaseapp.com",
+    projectId: "dischat-auth",
+    storageBucket: "dischat-auth.firebasestorage.app",
+    messagingSenderId: "625795096296",
+    appId: "1:625795096296:web:741f50e3224f4179dfb35d",
+    measurementId: "G-4S9XW14HM9"
+  };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDB = db;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.GithubAuthProvider = GithubAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        
+        // Make Firestore functions available globally
+        window.firestoreCollection = collection;
+        window.firestoreDoc = doc;
+        window.firestoreSetDoc = setDoc;
+        window.firestoreGetDoc = getDoc;
+        window.firestoreGetDocs = getDocs;
+        window.firestoreDeleteDoc = deleteDoc;
+        window.firestoreOnSnapshot = onSnapshot;
+        window.firestoreEnableNetwork = enableNetwork;
+        window.firestoreDisableNetwork = disableNetwork;
+        
+        console.log('Firebase initialized successfully');
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
